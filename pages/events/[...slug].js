@@ -1,6 +1,10 @@
 import { useRouter } from "next/router";
 import React from "react";
 import { getFilteredEvents } from "../../dummy_data";
+import EventList from "../../components/events/event-list";
+import ErrorAlert from "../../components/UI/error-alert";
+import ResultsTitle from "../../components/event-detail/results-title";
+import Button from "../../components/UI/button";
 
 export default function FilteredPage() {
   const router = useRouter();
@@ -8,7 +12,16 @@ export default function FilteredPage() {
   const filterData = router.query.slug;
 
   if (!filterData) {
-    return <p className="center">Loading ...</p>;
+    return (
+      <>
+        <ErrorAlert>
+          <p className="center">Loading ...</p>
+        </ErrorAlert>
+        <div className="center">
+          <Button link="/events">Show All Events</Button>
+        </div>
+      </>
+    );
   }
 
   const filteredYear = filterData[0];
@@ -25,20 +38,33 @@ export default function FilteredPage() {
     numMonth > 12 ||
     numMonth < 1
   ) {
-    return <p>Invalid Filtered. Please adjust your filters</p>;
+    return (
+      <>
+        <ErrorAlert>
+          <p>Invalid Filtered. Please adjust your filters</p>
+        </ErrorAlert>
+        <div className="center">
+          <Button link="/events">Show All Events</Button>
+        </div>
+      </>
+    );
   }
 
   const filterResultData = getFilteredEvents({
     year: numYear,
-    month: numMonth
-  })
+    month: numMonth,
+  });
 
-  if(!filterResultData || filterResultData.length === 0){
-    return <p>No events found for appliad filter</p>
+  if (!filterResultData || filterResultData.length === 0) {
+    return <p>No events found for appliad filter</p>;
   }
+
+  const date = new Date(numYear, numMonth - 1);
+
   return (
     <div>
-      <h1>Filtered Page</h1>
+      <ResultsTitle date={date} />
+      <EventList items={filterResultData} />
     </div>
   );
 }
