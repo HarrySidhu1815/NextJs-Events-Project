@@ -6,16 +6,26 @@ import ErrorAlert from "../../components/UI/error-alert";
 import ResultsTitle from "../../components/event-detail/results-title";
 import Button from "../../components/UI/button";
 
-export default function FilteredPage() {
-  const router = useRouter();
+export default function FilteredPage({hasError, filterData, dates}) {
 
-  const filterData = router.query.slug;
+  // if (!filterData) {
+  //   return (
+  //     <>
+  //       <ErrorAlert>
+  //         <p className="center">Loading ...</p>
+  //       </ErrorAlert>
+  //       <div className="center">
+  //         <Button link="/events">Show All Events</Button>
+  //       </div>
+  //     </>
+  //   );
+  // }
 
-  if (!filterData) {
+  if (hasError) {
     return (
       <>
         <ErrorAlert>
-          <p className="center">Loading ...</p>
+          <p>Invalid Filtered. Please adjust your filters</p>
         </ErrorAlert>
         <div className="center">
           <Button link="/events">Show All Events</Button>
@@ -23,6 +33,25 @@ export default function FilteredPage() {
       </>
     );
   }
+
+
+  if (!filterData || filterData.length === 0) {
+    return <p>No events found for appliad filter</p>;
+  }
+
+  const date = new Date(dates.numYear, dates.numMonth - 1);
+
+  return (
+    <div>
+      <ResultsTitle date={date} />
+      <EventList items={filterData} />
+    </div>
+  );
+}
+
+export async function getServerSideProps(context){
+
+  const filterData = context.params.slug;
 
   const filteredYear = filterData[0];
   const filteredMonth = filterData[1];
@@ -38,16 +67,11 @@ export default function FilteredPage() {
     numMonth > 12 ||
     numMonth < 1
   ) {
-    return (
-      <>
-        <ErrorAlert>
-          <p>Invalid Filtered. Please adjust your filters</p>
-        </ErrorAlert>
-        <div className="center">
-          <Button link="/events">Show All Events</Button>
-        </div>
-      </>
-    );
+    return {
+      props: {
+        hasError: true
+      }
+    }
   }
 
   const filterResultData = getFilteredEvents({
@@ -55,16 +79,13 @@ export default function FilteredPage() {
     month: numMonth,
   });
 
-  if (!filterResultData || filterResultData.length === 0) {
-    return <p>No events found for appliad filter</p>;
+  return {
+    props: {
+      filterData: filterResultData,
+      dates: {
+        numYear,
+        numMonth
+      }
+    }
   }
-
-  const date = new Date(numYear, numMonth - 1);
-
-  return (
-    <div>
-      <ResultsTitle date={date} />
-      <EventList items={filterResultData} />
-    </div>
-  );
 }
