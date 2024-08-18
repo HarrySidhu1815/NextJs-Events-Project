@@ -5,6 +5,7 @@ import EventList from "../../components/events/event-list";
 import ErrorAlert from "../../components/UI/error-alert";
 import ResultsTitle from "../../components/event-detail/results-title";
 import Button from "../../components/UI/button";
+import Head from "next/head";
 
 export default function FilteredPage({hasError, filterData, dates}) {
 
@@ -43,8 +44,15 @@ export default function FilteredPage({hasError, filterData, dates}) {
 
   return (
     <div>
+      <Head>
+      <title>Filtered Events</title>
+        <meta
+          name="description"
+          content={selectedEvent.description}
+        />
+      </Head>
       <ResultsTitle date={date} />
-      <EventList items={filterData} />
+      <EventList items={`All Events for ${numMonth}/${numYear}`} />
     </div>
   );
 }

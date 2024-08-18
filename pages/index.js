@@ -1,20 +1,30 @@
-import React from 'react'
-import { getFeaturedEvents } from '../helpers/api-utils'
-import EventList from '../components/events/event-list'
+import React from "react";
+import { getFeaturedEvents } from "../helpers/api-utils";
+import EventList from "../components/events/event-list";
+import Head from "next/head";
 
 export default function HomePage(props) {
   return (
-    <EventList items={props.events} />
-  )
+    <>
+      <Head>
+        <title>NextJS Events</title>
+        <meta
+          name="description"
+          content="Find a lot of great evnts that allows you t evolve..."
+        />
+      </Head>
+      <EventList items={props.events} />
+    </>
+  );
 }
 
-export async function getStaticProps(){
-  const featuredEvents = await getFeaturedEvents()
+export async function getStaticProps() {
+  const featuredEvents = await getFeaturedEvents();
 
   return {
     props: {
-      events : featuredEvents
+      events: featuredEvents,
     },
-    revalidate: 1000
-  }
+    revalidate: 1000,
+  };
 }

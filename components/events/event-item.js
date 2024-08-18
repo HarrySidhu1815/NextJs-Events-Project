@@ -4,6 +4,7 @@ import classes from './event-item.module.css'
 import DateIcon from '../icons/date-icon.js'
 import AddressIcon from '../icons/address-icon.js'
 import ArrowRightIcon from '../icons/arrow-right-icon.js'
+import Image from 'next/image.js'
 
 export default function EventItem({title, image, id, date, location}) {
     const formattedDate = new Date(date).toLocaleDateString('en-US', {
@@ -16,7 +17,7 @@ export default function EventItem({title, image, id, date, location}) {
     const hrefLink = `/events/${id}`
   return (
     <li className={classes.item}>
-      <img src={'/' + image} alt={title}/>
+      <Image height={250} width={160} src={'/' + image} alt={title}/>
       <div className={classes.content}>
         <div className={classes.summary}>
             <h2>{title}</h2>
