@@ -1,5 +1,14 @@
-function handler(req, res) {
+import { connectDatabase, getDocument, insertDocument } from "../../../helpers/db-helper";
+
+async function handler(req, res) {
   const eventId = req.query.eventId;
+
+  let client
+    try {
+      client = await connectDatabase()
+    } catch (error) {
+      res.status(500).json({message: 'Failed to connect to database'})
+    }
 
   if (req.method === "POST") {
     const { email, name, text } = req.body;
@@ -16,23 +25,34 @@ function handler(req, res) {
     }
 
     const newComment = {
-      id: new Date.toISOString(),
       email,
       text,
-      name
+      name,
+      eventId
     }
 
-    console.log(newComment)
-    res.status(201).json({message: 'Comment Added', comment: newComment})
+    let result
+    try {
+      result = await insertDocument(client, 'comments', newComment)
+      newComment._id = result.insertedId
+      res.status(201).json({message: 'Comment Added', comment: newComment})
+    } catch (error) {
+      res.status(500).json({message: 'Failed to add the comment'})
+    }
+    client.close()
+    return
   }
 
   if (req.method === "GET") {
-    const dummyList = [
-      {id: 'c1', name: 'Harry', text: 'First Comment'},
-      {id: 'c2', name: 'Akash', text: 'Second Comment'},
-    ]
+    
+    try {
+      const comments = await getDocument(client, 'comments', {_id: -1}, {eventId: eventId})
+      res.status(200).json({comments: comments})
+    } catch (error) {
+      res.status(500).json({message: 'Failed to fetch the comments'})
+    }
 
-    res.status(201).json({comments: dummyList})
+    client.close()
   }
 }
 
